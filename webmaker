@@ -1,0 +1,120 @@
+#!/bin/bash
+
+
+PROJECT_DIR=`dirname "$0"`
+
+function runwebserver(){
+    ./manage.py migrate
+    /usr/bin/open --new -a "/Applications/Google Chrome.app" --args --new-window 'http://127.0.0.1:8000/'
+    ./manage.py runserver
+}
+
+if [ -z "$1" ]; then
+    python3 $PROJECT_DIR/configuration/tools.py function_commands
+    echo ""
+    copyright-simon
+
+elif [ "$1" = "startproject" -o "$1" = "-s" ]; then
+
+    # going through the current new website folder
+    path websites && cd websites
+    if [ -z "$2" ]; then
+        echo "\nYOU ARE STARTING A NEW WEBSITE PROJECT"
+        vared -p "Enter your new project name : " -c webname
+    else;
+        webname=$2
+        echo "\nYOU ARE STARTING A NEW WEBSITE PROJECT as \033[1;32m'$webname'\033[0m"
+    fi
+    echo -n "Going into the project folder...\n"
+    mkdir $webname
+	cd $webname
+
+    # virtual environment
+    vname="base"
+    echo "\n---\033[1;33m CREATING NEW VIRTUAL ENVIRONMENT AS '$vname' \033[0m---"
+    python3 -m venv $vname
+    source $vname/bin/activate
+    echo ">>> virtualenv activated."
+
+    # modules installation
+    echo "\n---\033[1;33m PIP VERSION UPDATE \033[0m---"
+    python3 -m pip install --upgrade pip > /dev/null
+    echo ">>> DONE."
+    echo "\n---\033[1;33m INSTALLING REQUIREMENTS \033[0m---"
+    pip3 install -r $PROJECT_DIR/configuration/requirements.txt > /dev/null
+    echo ">>> DONE."
+    sleep 0.5s
+    echo "\n---\033[1;33m DATABASE INITIALIZATION \033[0m---"
+    django-admin startproject $webname
+
+    # brew services (re)start postgresql
+    createdb -O $USER $webname
+	echo ">>> database created as '$webname'.\n"
+
+    # setting the website pattern
+    cp -r $PROJECT_DIR/pattern/static ./$webname/
+    python manage.py startapp website
+    cp -r $PROJECT_DIR/pattern/templates ./website/
+    cd $webname/$webname
+    python $PROJECT_DIR/configuration/edit_settings.py $webname
+    cd ../.. > /dev/null
+
+    # git repository initialization
+    echo -e "\n---\033[1;33m GIT FILES \033[0m---"
+    echo "# $webname" >> README.md && echo -n ">>> "
+    git init
+    touch .gitignore
+    git add -A > /dev/null
+    git commit -m "Initial project"
+    git branch -M main
+
+    # git repository initialization
+    /usr/bin/open --new -a "/Applications/Google Chrome.app" --args --new-window 'https://github.com/new'
+    vared -p "Plase add the remote link of the new repository : " -c remotelink
+    git remote add origin $remotelink
+    
+    git push -u origin main
+
+    # final display
+    echo "\nCongratulations : your project is ready to go !\n" | tr a-z A-Z
+    vared -p "Do you want to run the server [y/n] ? " -c run
+    echo ""
+    if [ $run = "y" ]; then
+        runwebserver
+    fi
+
+elif [ "$1" = "runproject" -o "$1" = "-rp" ]; then
+
+    path websites && cd websites
+
+    if [ -z "$2" ]; then
+
+        projects=($(python3 $PROJECT_DIR/configuration/tools.py loadable_project $PWD))
+
+        echo "\navailable projects :"
+        for project in $projects;
+        do
+            echo ">> \033[1;32m$project\033[0m"
+        done
+
+        echo ""
+        vared -p "%B%F{yellow}select project :%f " -c projectinput
+
+    else;
+        projectinput="$2"
+    
+    fi
+
+    # Checking if the project folder is existing or not to run it
+    if [ -d "`pwd`/$projectinput" ] && [[ " ${projects[*]} " =~ " ${projectinput} " ]]
+    then
+        echo "Opening project \033[1;32m$projectinput\033[0m into a web window...\n"
+        path websites && cd websites
+        cd $projectinput && source base/bin/activate && cd $projectinput
+        runwebserver
+    else;
+        echo "This project \"$projectinput\" doesn't exist.\n"
+    fi
+    
+    
+fi

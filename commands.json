@@ -1,0 +1,4 @@
+{
+    "starproject": "create an entire project folder environnement for web development with django",
+    "runproject" : "load an existing project environnement and opening it in a Google Chrome tab"
+}
