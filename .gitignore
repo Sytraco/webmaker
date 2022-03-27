@@ -1,2 +1,5 @@
 # macOS files
-**/.DS_Store
+.DS_Store
+pattern/.DS_Store
+configuration/.DS_Store
+TODO.txt
