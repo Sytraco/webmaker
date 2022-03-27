@@ -48,7 +48,7 @@ elif [ "$1" = "startproject" -o "$1" = "-s" ]; then
         then
             echo ">>> required packages installed successfully."
         else;
-            echo ">>> can't install requirements, please check this dependances."
+            echo ">>> can't install requirements, please check these dependances."
     fi
 
     sleep 0.5s
