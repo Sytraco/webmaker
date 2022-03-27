@@ -18,9 +18,9 @@ REDIRECT_URI = '127.0.0.1'
 if __name__ == "__main__":
 
     app_name = sys.argv[1]
-    path = os.getcwd()
+    path = f"{os.getcwd()}/{app_name}/"
 
-    with open(path + "/settings.py", "r") as settings:
+    with open(path + "settings.py", "r") as settings:
 
         lines = settings.readlines()
 
@@ -41,9 +41,9 @@ if __name__ == "__main__":
         TIME_ZONE = Parameter(name="TIME_ZONE", content=lines, step=1)
         TIME_ZONE.replace_item(item="TIME_ZONE", new_content=TIMEZONE)
 
-        END_FILE = f"""\nSTATICFILES_DIRS = [\n    os.path.join(BASE_DIR, "static")\n]\nINTERNAL_IPS = [{REDIRECT_URI}]"""
+        END_FILE = f"""\nSTATICFILES_DIRS = [\n    os.path.join(BASE_DIR, "static")\n]\nINTERNAL_IPS = ["{REDIRECT_URI}"]"""
 
-    with open(path + "/settings.py", "w") as settings:
+    with open(path + "settings.py", "w") as settings:
 
         lines[11] = "import os\n"
 

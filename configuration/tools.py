@@ -118,7 +118,7 @@ def function_commands():
 
 def loadable_project(path):
 
-    ''' san all the available applications to run the server'''
+    ''' scan all the available applications to run the server'''
 
     # Loading all available projects
     projects = []
@@ -132,7 +132,7 @@ def loadable_project(path):
 
 if __name__ == "__main__":
 
-    # generalize this script functions toward the shell script
+    # generalization of this script functions toward the shell application
     try:
         globals()[sys.argv[1]](sys.argv[2])
     except IndexError:
