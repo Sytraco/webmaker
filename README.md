@@ -5,3 +5,5 @@ Webmaker is a workflow monitor intended to create and manage website projects bu
 
 - using postegresql
 - get Django version certified
+
+- source the script before using it
