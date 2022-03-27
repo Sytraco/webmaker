@@ -39,16 +39,24 @@ elif [ "$1" = "startproject" -o "$1" = "-s" ]; then
 
     # modules installation
     echo "\n---\033[1;33m PIP VERSION UPDATE \033[0m---"
-    python3 -m pip install --upgrade pip > /dev/null
-    echo ">>> DONE." # display which version it is !!!
+    python -m pip install --upgrade pip > /dev/null    
+    python -m pip --version && echo ">>> updated to last version."
+
     echo "\n---\033[1;33m INSTALLING REQUIREMENTS \033[0m---"
-    pip3 install -r $PROJECT_DIR/configuration/requirements.txt > /dev/null
-    echo ">>> DONE." # display which modules are installed au fur et à mesure
+    pip3 install --progress-bar 'ascii' -r $PROJECT_DIR/configuration/requirements.txt > /dev/null
+    if [ $? -eq 0 ];
+        then
+            echo ">>> required packages installed successfully."
+        else;
+            echo ">>> can't install requirements, please check this dependances."
+    fi
+
     sleep 0.5s
     echo "\n---\033[1;33m DATABASE INITIALIZATION \033[0m---"
     django-admin startproject $webname
 
     # brew services (re)start postgresql
+    brew services start postgresql
     createdb -O $USER $webname
 	echo ">>> database created as '$webname'."
 
@@ -70,16 +78,16 @@ elif [ "$1" = "startproject" -o "$1" = "-s" ]; then
 
     # git commits
     git add .gitignore
-    git commit -m "negleted files" > /dev/null
+    git commit -m "negleted files" >/dev/null
 
     git add README.md
-    git commit -m "project description" > /dev/null
+    git commit -m "project description" >/dev/null
 
     git add $vname/
-    git commit -m "virtual environment" > /dev/null
+    git commit -m "virtual environment" >/dev/null
 
     git add $webname/
-    git commit -m "django website" > /dev/null
+    git commit -m "django website" >/dev/null
 
     git branch -M main
 
@@ -101,11 +109,12 @@ elif [ "$1" = "startproject" -o "$1" = "-s" ]; then
     done
     echo ""
     git push -u origin main 2>/dev/null
-    echo "\033[1;33m !Project has been added to a new repository.\033[0m"
+    echo "\033[1;33m>>> Project added to a new repository.\033[0m"
     cd $webname > /dev/null
 
     # final display
-    echo "\n>>>\033[1;32m Congratulations\033[0m : your project is ready to go !\n" | tr a-z A-Z
+    echo ""
+    echo "\033[1;32mCongratulations\033[0m : your project is ready to go !"
     vared -p "Do you want to run the server [y/n] ? " -c run
     echo ""
     if [ $run = "y" ]; then
