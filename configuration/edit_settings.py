@@ -14,7 +14,6 @@ PASSWORD = ""
 
 REDIRECT_URI = '127.0.0.1'
 
-###
 
 if __name__ == "__main__":
 

@@ -1,10 +1,10 @@
 import os, sys, json, subprocess, numpy as np
 
-### path initialization ###
+### path initialization
 CURRENT_PATH = os.path.realpath(__file__)
 PROJECT_DIR = "/".join(CURRENT_PATH.split("/")[:-2])
 
-### style parameters ###
+### style parameters
 none = "\033[0m"
 light_green = "\033[1;32m"
 yellow = "\033[1;33m"
@@ -12,7 +12,7 @@ redB = "\033[1;31m"
 hspace, cspace = " ", 2 # (space coefficient)
 
 
-### usefull functions ###
+### usefull functions
 
 class Parameter:
 
@@ -131,7 +131,7 @@ def loadable_project(path):
 
 
 if __name__ == "__main__":
-    
+
     # generalize this script functions toward the shell script
     try:
         globals()[sys.argv[1]](sys.argv[2])
