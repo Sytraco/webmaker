@@ -1,87 +1,20 @@
 #!/usr/bin/env python3
 
 import numpy as np, sys, os
+from tools import Parameter
 
-class Parameter:
+### EDIT YOUR PREFERENCES HERE ###
 
-    var_positions = {
-        "BASE_DIR": 15,
-        "SECRET_KEY": 22,
-        "DEBUG": 25,
-        "ALLOWED_HOSTS": 27,
-        "INSTALLED_APPS": 32,
-        "MIDDLEWARE": 41,
-        "ROOT_URLCONF": 51,
-        "TEMPLATES": 53,
-        "WSGI_APPLICATION": 69,
-        "DATABASES": 75,
-        "AUTH_PASSWORD_VALIDATORS": 86,
-        "LANGUAGE_CODE": 105,
-        "TIME_ZONE": 107,
-        "USE_I18N": 109,
-        "USE_L10N": 111,
-        "USE_TZ": 113,
-        "STATIC_URL": 115,
-    }
+LANGUAGE = 'fr-FR'
+TIMEZONE = 'Europe/Paris'
 
-    def __init__(self, name, content, step):
-        self.name = name
-        self.lines = content
-        self.element_position = self.var_positions[name]
-        self.parameters = content[self.element_position:self.element_position + step]
-        self.length = step
+PORT = "5432"
+HOST = ""
+PASSWORD = ""
 
-        if ("{" in self.parameters[0]) and ("}" in self.parameters[-1]):
-            self.dtype = "dict"
-            self.mul = 2
-            self.space = "        "
-        elif ("[" in self.parameters[0]) and ("]" in self.parameters[-1]):
-            self.dtype = "list"
-            self.mul = 1
-            self.space = "    "
-        else:
-            self.dtype = "str"
+REDIRECT_URI = '127.0.0.1'
 
-    def add_item(self, item, position=None):
-
-        self.new_line()
-
-        def edit_content(content, self=self):
-
-            opening_list = content[0:self.mul]
-            closure_list = content[-self.mul:]
-
-            data = content[self.mul:-self.mul]
-            data.append(f"""{self.space}{item},\n""")
-
-            if position is not None:
-                data = np.roll(data, position).tolist()
-
-            return opening_list + data + closure_list
-
-        self.parameters = edit_content(self.parameters)
-        self.length += 1
-
-    def replace_item(self, item, new_content):
-        for i, line in enumerate(self.parameters):
-            if (item in line) and (self.dtype == "dict"):
-                self.parameters[i] = f"        '{item}': '{new_content}',\n"
-            elif (item in line) and (self.dtype == "str"):
-                self.parameters[i] = f"{item} = '{new_content}'\n"
-
-    def remove_item(self, item):
-        for i, line in enumerate(self.parameters):
-            if (item in line) and (self.dtype == "dict"):
-                self.parameters.pop(i)
-        self.length -= 1
-
-    def new_line(self):
-        Nline = self.element_position + self.length
-        self.lines.insert(Nline, '\n')
-        for key in self.var_positions.keys():
-            if Nline < self.var_positions[key]:
-                self.var_positions[key] += 1
-
+###
 
 if __name__ == "__main__":
 
@@ -89,6 +22,7 @@ if __name__ == "__main__":
     path = os.getcwd()
 
     with open(path + "/settings.py", "r") as settings:
+
         lines = settings.readlines()
 
         INSTALLED_APPS = Parameter(name="INSTALLED_APPS", content=lines, step=8)
@@ -98,17 +32,17 @@ if __name__ == "__main__":
         DATABASES = Parameter(name="DATABASES", content=lines, step=6)
         DATABASES.replace_item(item="ENGINE", new_content="django.db.backends.postgresql")
         DATABASES.replace_item(item="NAME", new_content=f"{app_name}")
-        DATABASES.add_item(item="'PASSWORD': ''")
-        DATABASES.add_item(item="'HOST': ''")
-        DATABASES.add_item(item="'PORT': '5432'")
+        DATABASES.add_item(item=f"'PASSWORD': '{PASSWORD}'")
+        DATABASES.add_item(item=f"'HOST': '{HOST}'")
+        DATABASES.add_item(item=f"'PORT': '{PORT}'")
 
         LANGUAGE_CODE = Parameter(name="LANGUAGE_CODE", content=lines, step=1)
-        LANGUAGE_CODE.replace_item(item="LANGUAGE_CODE", new_content='fr-FR')
+        LANGUAGE_CODE.replace_item(item="LANGUAGE_CODE", new_content=LANGUAGE)
 
         TIME_ZONE = Parameter(name="TIME_ZONE", content=lines, step=1)
-        TIME_ZONE.replace_item(item="TIME_ZONE", new_content='Europe/Paris')
+        TIME_ZONE.replace_item(item="TIME_ZONE", new_content=TIMEZONE)
 
-        END_FILE = """\nSTATICFILES_DIRS = [\n    os.path.join(BASE_DIR, "static")\n]\nINTERNAL_IPS = ['127.0.0.1']"""
+        END_FILE = f"""\nSTATICFILES_DIRS = [\n    os.path.join(BASE_DIR, "static")\n]\nINTERNAL_IPS = [{REDIRECT_URI}]"""
 
     with open(path + "/settings.py", "w") as settings:
 
