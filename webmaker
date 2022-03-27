@@ -1,18 +1,19 @@
 #!/bin/bash
 
-
 PROJECT_DIR=`dirname "$0"`
+REDIRECT_URI='http://127.0.0.1:8000/'
 
 function runwebserver(){
     ./manage.py migrate
-    /usr/bin/open --new -a "/Applications/Google Chrome.app" --args --new-window 'http://127.0.0.1:8000/'
+    /usr/bin/open --new -a "/Applications/Google Chrome.app" --args --new-window $REDIRECT_URI
     ./manage.py runserver
 }
 
 if [ -z "$1" ]; then
     python3 $PROJECT_DIR/configuration/tools.py function_commands
+    echo "\n"
+    echo "COPYRIGHT © Simon Pointeau 2022."
     echo ""
-    copyright-simon
 
 elif [ "$1" = "startproject" -o "$1" = "-s" ]; then
 
@@ -39,44 +40,72 @@ elif [ "$1" = "startproject" -o "$1" = "-s" ]; then
     # modules installation
     echo "\n---\033[1;33m PIP VERSION UPDATE \033[0m---"
     python3 -m pip install --upgrade pip > /dev/null
-    echo ">>> DONE."
+    echo ">>> DONE." # display which version it is !!!
     echo "\n---\033[1;33m INSTALLING REQUIREMENTS \033[0m---"
     pip3 install -r $PROJECT_DIR/configuration/requirements.txt > /dev/null
-    echo ">>> DONE."
+    echo ">>> DONE." # display which modules are installed au fur et à mesure
     sleep 0.5s
     echo "\n---\033[1;33m DATABASE INITIALIZATION \033[0m---"
     django-admin startproject $webname
 
     # brew services (re)start postgresql
     createdb -O $USER $webname
-	echo ">>> database created as '$webname'.\n"
+	echo ">>> database created as '$webname'."
 
     # setting the website pattern
-    cp -r $PROJECT_DIR/pattern/static ./$webname/
+    cd $webname
+    cp -r $PROJECT_DIR/pattern/static ./
     python manage.py startapp website
-    cp -r $PROJECT_DIR/pattern/templates ./website/
-    cd $webname/$webname
+    cd website
+    cp -r $PROJECT_DIR/pattern/templates ./
+    cd .. > /dev/null
     python $PROJECT_DIR/configuration/edit_settings.py $webname
-    cd ../.. > /dev/null
+    cd .. > /dev/null
 
     # git repository initialization
-    echo -e "\n---\033[1;33m GIT FILES \033[0m---"
+    echo -e "\n---\033[1;33m GIT REPOSITORY INITIALIZATION \033[0m---"
     echo "# $webname" >> README.md && echo -n ">>> "
     git init
-    touch .gitignore
-    git add -A > /dev/null
-    git commit -m "Initial project"
+    echo "# macOS users\n.DS_Store" >> .gitignore
+
+    # git commits
+    git add .gitignore
+    git commit -m "negleted files" > /dev/null
+
+    git add README.md
+    git commit -m "project description" > /dev/null
+
+    git add $vname/
+    git commit -m "virtual environment" > /dev/null
+
+    git add $webname/
+    git commit -m "django website" > /dev/null
+
     git branch -M main
 
     # git repository initialization
     /usr/bin/open --new -a "/Applications/Google Chrome.app" --args --new-window 'https://github.com/new'
-    vared -p "Plase add the remote link of the new repository : " -c remotelink
-    git remote add origin $remotelink
+    echo "\nOpening a window GitHub tab..." && sleep 2
+    echo "Can't see the GitHub tab ? Go to https://github.com/new"
     
-    git push -u origin main
+    # loop initialization : repository verification
+    loop=1
+    while ! [[ $loop -eq 0 ]];
+    do
+        echo ""
+        vared -p "Please add the remote link of the new repository : " -c remotelink
+        git remote add origin $remotelink
+        if [ $? -eq 0 ]; then
+            loop=0
+        fi
+    done
+    echo ""
+    git push -u origin main 2>/dev/null
+    echo "\033[1;33m !Project has been added to a new repository.\033[0m"
+    cd $webname > /dev/null
 
     # final display
-    echo "\nCongratulations : your project is ready to go !\n" | tr a-z A-Z
+    echo "\n>>>\033[1;32m Congratulations\033[0m : your project is ready to go !\n" | tr a-z A-Z
     vared -p "Do you want to run the server [y/n] ? " -c run
     echo ""
     if [ $run = "y" ]; then
@@ -115,6 +144,5 @@ elif [ "$1" = "runproject" -o "$1" = "-rp" ]; then
     else;
         echo "This project \"$projectinput\" doesn't exist.\n"
     fi
-    
     
 fi
