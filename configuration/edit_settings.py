@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import numpy as np, sys, os
+import sys, os
 from tools import Parameter
 
 ### EDIT YOUR PREFERENCES HERE ###
@@ -54,3 +54,5 @@ if __name__ == "__main__":
         settings.writelines(lines)
 
         settings.write(END_FILE)
+
+        
