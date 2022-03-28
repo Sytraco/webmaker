@@ -1,5 +1,3 @@
-from cProfile import label
-from ensurepip import version
 from importlib.metadata import requires
 import os, sys, json, subprocess, numpy as np
 
@@ -22,6 +20,7 @@ class Parameter:
     ''' edit a given line of the setting.py file generated from Django '''
 
     var_positions = {
+
         # "label": line_position
         "BASE_DIR": 15,
         "SECRET_KEY": 22,
