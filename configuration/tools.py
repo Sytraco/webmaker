@@ -1,18 +1,24 @@
-import os, sys, json, subprocess, numpy as np
+import os, sys, json, numpy as np
 
 ### path initialization
 CURRENT_PATH = os.path.realpath(__file__)
-PROJECT_DIR = "/".join(CURRENT_PATH.split("/")[:-2])
+PROJECT_DIR = "/".join(CURRENT_PATH.split("/")[:-2])  + "/"
+COLORSTYLE_FILE = PROJECT_DIR + "configuration/style.sh"
 
-### style parameters
-none = "\033[0m"
-light_green = "\033[1;32m"
-yellow = "\033[1;33m"
-redB = "\033[1;31m"
-hspace, cspace = " ", 2 # (space coefficient)
+### space parameters
+hspace = " "
+cspace = 2
 
 
-### usefull functions
+def import_colors():
+    
+    ''' load the colorstyle file used in the shell script as python variables '''
+
+    with open(COLORSTYLE_FILE) as filestyle:
+        for row in filestyle:
+            # exec('color="color_code"') >> color = "color_code"
+            exec(row.replace("\n", "")) if not "#" in row else False
+
 
 class Parameter:
 
@@ -99,25 +105,24 @@ class Parameter:
                 self.var_positions[key] += 1
 
 
-def function_commands():
+def app_commands():
 
     ''' load and display application commands from .json file. '''
 
-    with open(f"{PROJECT_DIR}/commands.json", "r") as jsonfile:
-        commands = json.load(jsonfile)
-
-    # Blank line
-    print("")
+    jsonfile = open(f"{PROJECT_DIR}/commands.json", "r")
+    commands = json.load(jsonfile)
 
     # Usage function
-    print(f"Usage:\n{hspace*cspace}webmaker <command> [options]\n")
+    print(f"\nUsage:\n{hspace*cspace}webmaker <command> [options]\n")
     
-    # Function commands
+    # Commands display
     print("Commands:")
     [print(f"{hspace*cspace}{command}\t\t{description}") for command, description in commands.items()]
 
+    jsonfile.close()
 
-def loadable_project(path):
+
+def loadable_projects(path):
 
     ''' scan all the available applications to run the server'''
 
@@ -133,7 +138,7 @@ def loadable_project(path):
 
 if __name__ == "__main__":
 
-    # generalization of this script functions toward the shell application
+    # generalization of script functions to shell application
     try:
         globals()[sys.argv[1]](sys.argv[2])
     except IndexError:
